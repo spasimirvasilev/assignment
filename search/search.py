@@ -87,6 +87,31 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
+
+    open = util.Stack()
+    path = util.Stack()
+    open.push([problem.getStartState()])
+    while not open.isEmpty():
+
+        currentPath = open.pop() #remove node from open
+        actions = []
+        if not path.isEmpty():
+            actions = path.pop()
+
+        endState = currentPath[-1]
+        if problem.isGoalState(endState):
+            return actions
+        for i in problem.getSuccessors(endState):
+            if i[0] not in currentPath:
+                nCopy = currentPath[:] #make copy of
+                mCopy = actions[:]
+
+                nCopy.append(i[0])
+                mCopy.append(i[1])
+
+                open.push(nCopy)
+                path.push(mCopy)
+
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
