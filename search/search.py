@@ -181,7 +181,6 @@ def uniformCostSearch(problem):
                 newCost = problem.getCostOfActions(mCopy)
                 if succ[0] not in seen or newCost < seen[succ[0]]:
 
-
                     costSoFar = problem.getCostOfActions(actions)
 
                     open.update(nCopy, succ[2] + costSoFar)
@@ -200,6 +199,39 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+
+    open = util.PriorityQueue()
+    path = util.PriorityQueue()
+    seen = {problem.getStartState(): heuristic(problem.getStartState(), problem)}
+    open.push([problem.getStartState()], heuristic(problem.getStartState(), problem))
+    path.push([], 0)
+    while not open.isEmpty():
+        n = open.pop()  # remove node from open
+        actions = []
+        if not path.isEmpty():
+            actions = path.pop()
+
+        endState = n[-1]
+        if problem.getCostOfActions(actions) + heuristic(endState, problem) <= seen[endState]:
+            if problem.isGoalState(endState):
+                return actions
+
+            for succ in problem.getSuccessors(endState):
+                nCopy = n[:]  # make copy of the popped node
+                mCopy = actions[:]
+
+                nCopy.append(succ[0])
+                mCopy.append(succ[1])
+
+                hCost = heuristic(succ[0], problem)
+                newCost = problem.getCostOfActions(mCopy) + hCost
+                if succ[0] not in seen or newCost < seen[succ[0]]:
+                    costSoFar = problem.getCostOfActions(actions)
+
+                    open.update(nCopy, succ[2] + costSoFar + hCost)
+                    path.update(mCopy, succ[2] + costSoFar + hCost)
+                    seen[succ[0]] = newCost
+
     util.raiseNotDefined()
 
 
