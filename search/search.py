@@ -93,21 +93,21 @@ def depthFirstSearch(problem):
     open.push([problem.getStartState()])
     while not open.isEmpty():
 
-        currentPath = open.pop() #remove node from open
+        n = open.pop() #remove node from open
         actions = []
         if not path.isEmpty():
             actions = path.pop()
 
-        endState = currentPath[-1]
+        endState = n[-1]
         if problem.isGoalState(endState):
             return actions
-        for i in problem.getSuccessors(endState):
-            if i[0] not in currentPath:
-                nCopy = currentPath[:] #make copy of
+        for succ in problem.getSuccessors(endState):
+            if succ[0] not in n:
+                nCopy = n[:] #make copy of
                 mCopy = actions[:]
 
-                nCopy.append(i[0])
-                mCopy.append(i[1])
+                nCopy.append(succ[0])
+                mCopy.append(succ[1])
 
                 open.push(nCopy)
                 path.push(mCopy)
@@ -120,35 +120,74 @@ def breadthFirstSearch(problem):
 
     open = util.Queue()
     path = util.Queue()
-    visited = []
+    seen = {problem.getStartState():0}
     open.push([problem.getStartState()])
     while not open.isEmpty():
 
-        currentPath = open.pop()  # remove node from open
+        n = open.pop()  # remove node from open
         actions = []
         if not path.isEmpty():
             actions = path.pop()
 
-        endState = currentPath[-1]
-        visited.append(endState);
-        if problem.isGoalState(endState):
-            return actions
-        for i in problem.getSuccessors(endState):
-            if i[0] not in visited:
-                nCopy = currentPath[:]  # make copy of
+        endState = n[-1]
+        if problem.getCostOfActions(actions) <= seen[endState]:
+            if problem.isGoalState(endState):
+                return actions
+
+            for succ in problem.getSuccessors(endState):
+                nCopy = n[:]  # make copy of
                 mCopy = actions[:]
 
-                nCopy.append(i[0])
-                mCopy.append(i[1])
+                nCopy.append(succ[0])
+                mCopy.append(succ[1])
 
-                open.push(nCopy)
-                path.push(mCopy)
+                newCost = problem.getCostOfActions(mCopy)
+
+                if succ[0] not in seen or newCost < seen[succ[0]]:
+                    open.push(nCopy)
+                    path.push(mCopy)
+                    seen[succ[0]] = newCost
 
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+
+    open = util.PriorityQueue()
+    path = util.PriorityQueue()
+    seen = {problem.getStartState(): 0}
+    open.push([problem.getStartState()], 0)
+    path.push([], 0)
+    while not open.isEmpty():
+
+        n = open.pop()  # remove node from open
+        actions = []
+        if not path.isEmpty():
+            actions = path.pop()
+
+        endState = n[-1]
+        if problem.getCostOfActions(actions) <= seen[endState]:
+            if problem.isGoalState(endState):
+                return actions
+
+            for succ in problem.getSuccessors(endState):
+                nCopy = n[:]  # make copy of the popped node
+                mCopy = actions[:]
+
+                nCopy.append(succ[0])
+                mCopy.append(succ[1])
+
+                newCost = problem.getCostOfActions(mCopy)
+                if succ[0] not in seen or newCost < seen[succ[0]]:
+
+
+                    costSoFar = problem.getCostOfActions(actions)
+
+                    open.update(nCopy, succ[2] + costSoFar)
+                    path.update(mCopy, succ[2] + costSoFar)
+                    seen[succ[0]] = newCost
+
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
