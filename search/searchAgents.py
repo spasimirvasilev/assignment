@@ -289,6 +289,7 @@ class CornersProblem(search.SearchProblem):
         # in initializing the problem
         "*** YOUR CODE HERE ***"
 
+        self.gameState = startingGameState
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
@@ -385,9 +386,37 @@ def cornersHeuristic(state, problem):
     """
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
-
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    #want to go from starting position to closest corner coordinates
+    #want the min mazeDistance from starting pt to a corner
+    visitedCorners = state[1]
+    
+    currentPosition = state[0]
+    totalDistance = 0
+    cornerstoVisit = []
+    closestDistance = 10000000
+   
+    for corner in corners:
+        if corner not in visitedCorners:
+            cornerstoVisit.append(corner)
+            
+    while cornerstoVisit:
+    #remove the closest one, add to total distance
+        visited = visit(currentPosition, cornerstoVisit, problem)
+        totalDistance += visited[0]
+        cornerstoVisit = visited[1]
+    return totalDistance
+
+def visit(position, unvisitedCorners, problem):
+    closestDistance = 10000000
+    for corner in unvisitedCorners:
+        cornerDistance = mazeDistance(corner, position, problem.gameState)
+        if cornerDistance < closestDistance:
+            closestDistance = cornerDistance
+            closestCorner = corner
+    unvisitedCorners.remove(closestCorner)
+    return (closestDistance, unvisitedCorners)
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
