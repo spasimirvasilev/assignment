@@ -296,9 +296,6 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        # maybe the position and whether its a corner
-        #if self.startingPosition in self.corners:
-           # return {self.startingPosition: True}
 
         return (self.startingPosition, ())
         util.raiseNotDefined()
@@ -327,6 +324,8 @@ class CornersProblem(search.SearchProblem):
             is the incremental cost of expanding to that successor
         """
 
+        # something is still causing it to expand too many nodes (fix later)
+
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
@@ -342,15 +341,18 @@ class CornersProblem(search.SearchProblem):
             hitsWall = self.walls[nextx][nexty]
             if not hitsWall:
                 isCorner = (nextx, nexty) in self.corners
-                if isCorner and (nextx, nexty) not in state[1]:
-                    newList = list(state[1])
-                    newList.append((nextx, nexty))
-                    newTuple = tuple(newList)
-                    nextState = ((nextx, nexty), newTuple)
+                if isCorner:
+                    if (nextx, nexty) not in state[1]:
+                        newList = list(state[1])
+                        newList.append((nextx, nexty))
+                        newTuple = tuple(newList)
+                        nextState = ((nextx, nexty), newTuple)
+
+                        successors.append((nextState, action, 1))
                 else:
                     nextState = ((nextx, nexty), state[1])
 
-                successors.append((nextState, action, 1))
+                    successors.append((nextState, action, 1))
 
             "*** YOUR CODE HERE ***"
 
@@ -384,27 +386,29 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e., it should be
     admissible.
     """
+
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
     "*** YOUR CODE HERE ***"
     #want to go from starting position to closest corner coordinates
     #want the min mazeDistance from starting pt to a corner
     visitedCorners = state[1]
-    
+
     currentPosition = state[0]
     totalDistance = 0
     cornerstoVisit = []
     closestDistance = 10000000
-   
+
     for corner in corners:
         if corner not in visitedCorners:
             cornerstoVisit.append(corner)
-            
+
     while cornerstoVisit:
     #remove the closest one, add to total distance
         visited = visit(currentPosition, cornerstoVisit, problem)
         totalDistance += visited[0]
         cornerstoVisit = visited[1]
+        currentPosition = visited[2]
     return totalDistance
 
 def visit(position, unvisitedCorners, problem):
@@ -415,7 +419,7 @@ def visit(position, unvisitedCorners, problem):
             closestDistance = cornerDistance
             closestCorner = corner
     unvisitedCorners.remove(closestCorner)
-    return (closestDistance, unvisitedCorners)
+    return (closestDistance, unvisitedCorners, closestCorner)
 
 
 class AStarCornersAgent(SearchAgent):
