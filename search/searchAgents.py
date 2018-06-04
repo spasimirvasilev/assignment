@@ -405,13 +405,13 @@ def cornersHeuristic(state, problem):
 
     while cornerstoVisit:
     #remove the closest one, add to total distance
-        visited = visit(currentPosition, cornerstoVisit, problem)
+        visited = visit(currentPosition, cornerstoVisit)
         totalDistance += visited[0]
         cornerstoVisit = visited[1]
         currentPosition = visited[2]
     return totalDistance
 
-def visit(position, unvisitedCorners, problem):
+def visit(position, unvisitedCorners):
     closestDistance = 10000000
     for corner in unvisitedCorners:
         cornerDistance = util.manhattanDistance(corner, position)
@@ -512,7 +512,35 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+
+    foodList = foodGrid.asList()
+
+    closestDistance = 1000000
+    totalDistance = 0
+
+    if len(foodList) == 1:
+        return util.manhattanDistance(foodList[0], position)
+
+    for food in foodList:
+        distance = util.manhattanDistance(food, position)
+
+        foodList2 = list(foodList)
+
+        currentPosition = food
+        tempDistance = 0
+        while foodList2:
+            visited = visit(currentPosition, foodList2)
+            tempDistance += visited[0]
+            foodList2 = visited[1]
+            currentPosition = visited[2]
+
+        newDistance = distance + tempDistance
+
+        if tempDistance != 0 and newDistance < closestDistance:
+            totalDistance = newDistance
+            closestDistance = newDistance
+
+    return totalDistance
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
