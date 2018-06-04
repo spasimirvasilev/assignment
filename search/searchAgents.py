@@ -290,6 +290,7 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
 
         self.gameState = startingGameState
+
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
@@ -297,7 +298,13 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE ***"
 
-        return (self.startingPosition, ())
+        corners = []
+
+        for corner in self.corners:
+            corners.append(corner)
+
+        return (self.startingPosition, tuple(corners))
+
         util.raiseNotDefined()
 
     def isGoalState(self, state):
@@ -306,11 +313,11 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE ***"
 
-        for corner in self.corners:
-            if corner not in state[1]:
-                return False
+        if len(state[1]) == 0:
+            return True
 
-        return True
+        return False
+
         util.raiseNotDefined()
 
     def getSuccessors(self, state):
@@ -340,23 +347,21 @@ class CornersProblem(search.SearchProblem):
             nextx, nexty = int(x + dx), int(y + dy)
             hitsWall = self.walls[nextx][nexty]
             if not hitsWall:
+                successorState = state[1]
                 isCorner = (nextx, nexty) in self.corners
                 if isCorner:
-                    if (nextx, nexty) not in state[1]:
+                    if (nextx, nexty) in state[1]:
                         newList = list(state[1])
-                        newList.append((nextx, nexty))
+                        newList.remove((nextx, nexty))
                         newTuple = tuple(newList)
-                        nextState = ((nextx, nexty), newTuple)
+                        successorState = newTuple
 
-                        successors.append((nextState, action, 1))
-                else:
-                    nextState = ((nextx, nexty), state[1])
-
-                    successors.append((nextState, action, 1))
+                nextState = ((nextx, nexty), successorState)
+                successors.append((nextState, action, 1))
 
             "*** YOUR CODE HERE ***"
 
-        self._expanded += 1 # DO NOT CHANGE
+        self._expanded += 1  # DO NOT CHANGE
         return successors
 
     def getCostOfActions(self, actions):
@@ -400,7 +405,7 @@ def cornersHeuristic(state, problem):
     closestDistance = 10000000
 
     for corner in corners:
-        if corner not in visitedCorners:
+        if corner in visitedCorners:
             cornerstoVisit.append(corner)
 
     while cornerstoVisit:
