@@ -331,8 +331,6 @@ class CornersProblem(search.SearchProblem):
             is the incremental cost of expanding to that successor
         """
 
-        # something is still causing it to expand too many nodes (fix later)
-
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
